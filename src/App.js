@@ -1,25 +1,44 @@
-import logo from './logo.svg';
 import './App.css';
+import * as React from 'react'
+import UpperNav from './modules/UpperNav';
+import SignIn from './modules/authorization';
+import Profile from './modules/profile';
+import CurrentPage from './modules/CurrentPage'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+  
+  let isAuth = false
+  const [value, setValue] = React.useState('profiles');
+  const currentPage = (event, newValue) => {
+    setValue(newValue);
+    console.log(newValue)
+}
+  const handleSubmit = (event) => {
+    // event.preventDefault()
+    const data = new FormData(event.currentTarget);
+    if(data.get('email') === 'test@mail.ru' && data.get('password') === '123321') {
+      // console.log('Success')                        /SNACKBAR
+      isAuth = true
+      localStorage.setItem('isAuth', JSON.stringify(isAuth))
+    } else {
+      // console.log('Error')                          /SNACKBAR
+      isAuth = false
+      localStorage.setItem('isAuth', JSON.stringify(isAuth))
+    }
+  };
+  const handleExit = (event) => {
+    event.preventDefault()
+    isAuth = false
+    localStorage.setItem('isAuth', JSON.stringify(isAuth))
+    window.location.reload()
+  }
+  function authAct() {
+    return JSON.parse(localStorage.getItem('isAuth')) === true ? <Profile handleExit={handleExit}/> : <SignIn handleSubmit={handleSubmit}/>
+  }
+  return (<div>
+    <UpperNav value={value} currentPage={currentPage} isAuth={JSON.parse(localStorage.getItem('isAuth'))}/>
+    
+    {value !== 'profiles' ? <CurrentPage page={value}/> : authAct()}
+  </div>)
 }
 
-export default App;
